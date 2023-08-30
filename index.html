@@ -1,0 +1,72 @@
+<!--
+    C:\my-electron-app>npm run start
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    /> -->
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Digital Twin API - Electron Host Access</title>
+  </head>
+  <body>
+    <h1>Digital Twin API - Electron Host Access</h1>
+    <p id="info"></p>
+    <p id="status"></p>
+    <script>
+        InitApplication();
+
+        async function InitApplication() 
+        {
+            document.getElementById('status').innerHTML += 'Script started...';
+
+            var url = 'https://apigw-us-east-1.central.arubanetworks.com/visualrf_api/v1/floor/9f1efe96d4cb417f9d592c7fbda6ed1f__57eef786-b730-4155-961d-a5adbe8f4909/client_location?offset=0&limit=100&units=FEET';
+            var clientId = 'wYhWUChA1Lr1DaetwLV2SvyxJ8a1Ev6O';
+            var clientSecret = 'iD3ZWyXTU40uwWca0WwiXcEutAwkPeza';
+            var token = 'ydClQv74uU1Vh7fwxfq44jQgwoc2wILP';
+
+            performCurlRequest(url, token);
+        }
+        
+        async function performCurlRequest(url, token) {
+            document.getElementById('status').innerHTML += '</br>' + 'Aruba data request: Started...';
+            const headers = {
+                'Authorization': `Bearer ${token}`
+            };
+            try {
+                const response = await fetch(url, {
+                method: 'GET', // You can adjust the HTTP method here
+                headers: headers
+                });
+                const data = await response.json();
+                if(response.status == 200)
+                {
+                    document.getElementById('status').innerHTML += '</br>' + 'Aruba data request: Success';
+                }
+                else
+                {
+                    document.getElementById('status').innerHTML += '</br>' + `Aruba data request: Received but failed (${response.status})`;
+                }
+                document.getElementById('status').innerHTML += '</br>' + 'Device locations: ' + '</br>';
+                data.locations.forEach((loc) => 
+                {
+                    document.getElementById('status').innerHTML += `(${loc.x}, ${loc.y})`;
+                })
+                return data;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('status').innerHTML += '</br>' + 'Aruba data request: Fail';
+                return null;
+            }
+        }
+    </script>
+  </body>
+  <script src="./renderer.js"></script>
+</html>
